@@ -1,38 +1,40 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Gamesense Config Kopieren</title>
+  <title>Gamesense HvH Config</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: radial-gradient(circle at center, #111 0%, #000 100%);
+      font-family: "Inter", sans-serif;
+      background: #0a0a0a;
       color: #eee;
-      height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
-      backdrop-filter: blur(6px);
+      height: 100vh;
     }
 
-    .container {
-      background: rgba(20, 20, 20, 0.7);
+    .box {
+      background: rgba(30, 30, 30, 0.75);
+      backdrop-filter: blur(8px);
       padding: 2em 3em;
       border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0, 255, 120, 0.15);
+      box-shadow: 0 0 20px rgba(0, 255, 120, 0.1);
       text-align: center;
+      max-width: 90%;
     }
 
     h1 {
-      margin-bottom: 0.5em;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
       color: #0f0;
     }
 
     p {
-      font-size: 1rem;
-      margin: 1em 0;
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-bottom: 1.5rem;
     }
 
     button {
@@ -40,10 +42,10 @@
       color: #000;
       border: none;
       padding: 10px 20px;
-      font-size: 1rem;
+      font-size: 0.95rem;
       border-radius: 8px;
       cursor: pointer;
-      transition: 0.2s ease;
+      transition: all 0.2s ease;
     }
 
     button:hover {
@@ -53,49 +55,44 @@
     .hidden {
       display: none;
     }
+
+    .status {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: #aaa;
+    }
   </style>
   <script>
-    async function fetchConfig() {
-      const response = await fetch("../cfg/gamesense.txt");
-      if (!response.ok) throw new Error("Datei konnte nicht geladen werden.");
-      return await response.text();
-    }
-
-    async function autoCopy() {
-      const status = document.getElementById("status");
+    async function fetchAndCopy(path) {
       try {
-        const text = await fetchConfig();
+        const res = await fetch(path);
+        const text = await res.text();
         await navigator.clipboard.writeText(text);
-        status.textContent = "✅ Config automatisch kopiert!";
+        document.getElementById("status").textContent = "✅ Config copied to clipboard";
         setTimeout(() => window.close(), 1500);
-      } catch (err) {
-        status.textContent = "⚠️ Automatisches Kopieren blockiert. Bitte manuell kopieren.";
-        document.getElementById("manualCopyBtn").classList.remove("hidden");
-        console.warn(err);
+      } catch {
+        document.getElementById("status").textContent = "⚠️ Auto-copy blocked. Click the button below.";
+        document.getElementById("copyBtn").classList.remove("hidden");
       }
     }
 
-    async function manualCopy() {
-      const status = document.getElementById("status");
-      try {
-        const text = await fetchConfig();
-        await navigator.clipboard.writeText(text);
-        status.textContent = "✅ Manuell kopiert!";
-        setTimeout(() => window.close(), 1500);
-      } catch (err) {
-        status.textContent = "❌ Kopieren fehlgeschlagen.";
-        console.error(err);
-      }
+    async function manualCopy(path) {
+      const res = await fetch(path);
+      const text = await res.text();
+      await navigator.clipboard.writeText(text);
+      document.getElementById("status").textContent = "✅ Config copied!";
+      setTimeout(() => window.close(), 1500);
     }
 
-    window.onload = autoCopy;
+    window.onload = () => fetchAndCopy("../cfg/gamesense.txt");
   </script>
 </head>
 <body>
-  <div class="container">
-    <h1>📋 Gamesense Config</h1>
-    <p id="status">Versuche automatisch zu kopieren...</p>
-    <button id="manualCopyBtn" class="hidden" onclick="manualCopy()">Manuell kopieren</button>
+  <div class="box">
+    <h1>Gamesense HvH Config</h1>
+    <p>Config for Unmatched.gg</p>
+    <button id="copyBtn" class="hidden" onclick="manualCopy('../cfg/gamesense.txt')">Copy</button>
+    <div id="status" class="status">Trying to copy...</div>
   </div>
 </body>
 </html>
