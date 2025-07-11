@@ -1,27 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>Gamesense Config Copy</title>
-  <script>
-    async function copyAndClose() {
-      try {
-        const response = await fetch("../cfg/gamesense.txt");
-        const text = await response.text();
-        await navigator.clipboard.writeText(text);
-        console.log("Copied to clipboard!");
+  <title>Gamesense Config Kopieren</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at center, #111 0%, #000 100%);
+      color: #eee;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      backdrop-filter: blur(6px);
+    }
 
-        // Schließt das Fenster automatisch nach 2 Sekunden (optional)
-        setTimeout(() => window.close(), 200);
+    .container {
+      background: rgba(20, 20, 20, 0.7);
+      padding: 2em 3em;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 255, 120, 0.15);
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 0.5em;
+      color: #0f0;
+    }
+
+    p {
+      font-size: 1rem;
+      margin: 1em 0;
+    }
+
+    button {
+      background-color: #0f0;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #0c0;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+  <script>
+    async function fetchConfig() {
+      const response = await fetch("../cfg/gamesense.txt");
+      if (!response.ok) throw new Error("Datei konnte nicht geladen werden.");
+      return await response.text();
+    }
+
+    async function autoCopy() {
+      const status = document.getElementById("status");
+      try {
+        const text = await fetchConfig();
+        await navigator.clipboard.writeText(text);
+        status.textContent = "✅ Config automatisch kopiert!";
+        setTimeout(() => window.close(), 1500);
       } catch (err) {
-        console.error("Copy failed", err);
+        status.textContent = "⚠️ Automatisches Kopieren blockiert. Bitte manuell kopieren.";
+        document.getElementById("manualCopyBtn").classList.remove("hidden");
+        console.warn(err);
       }
     }
 
-    window.onload = copyAndClose;
+    async function manualCopy() {
+      const status = document.getElementById("status");
+      try {
+        const text = await fetchConfig();
+        await navigator.clipboard.writeText(text);
+        status.textContent = "✅ Manuell kopiert!";
+        setTimeout(() => window.close(), 1500);
+      } catch (err) {
+        status.textContent = "❌ Kopieren fehlgeschlagen.";
+        console.error(err);
+      }
+    }
+
+    window.onload = autoCopy;
   </script>
 </head>
 <body>
-  <p>Copying config...</p>
+  <div class="container">
+    <h1>📋 Gamesense Config</h1>
+    <p id="status">Versuche automatisch zu kopieren...</p>
+    <button id="manualCopyBtn" class="hidden" onclick="manualCopy()">Manuell kopieren</button>
+  </div>
 </body>
 </html>
