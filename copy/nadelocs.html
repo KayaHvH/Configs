@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NadeHelper Locs</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 100vh;
+      background: #0d0d0d;
+      font-family: "Segoe UI", sans-serif;
+      color: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(8px);
+    }
+
+    .box {
+      background: rgba(20, 20, 20, 0.85);
+      padding: 2rem 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 255, 120, 0.08);
+      text-align: center;
+      max-width: 90%;
+    }
+
+    h1 {
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .desc {
+      font-size: 0.95rem;
+      opacity: 0.8;
+      margin-bottom: 1.5rem;
+    }
+
+    .status {
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      min-height: 1.2em;
+    }
+
+    button {
+      background: #0f0;
+      border: none;
+      color: #000;
+      padding: 0.6rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background: #0c0;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+  <script>
+    async function getText() {
+      const res = await fetch("../cfg/NadeHelperlocs.txt");
+      if (!res.ok) throw new Error("Failed to fetch config");
+      return await res.text();
+    }
+
+    async function autoCopy() {
+      const status = document.getElementById("status");
+      try {
+        const text = await getText();
+        await navigator.clipboard.writeText(text);
+        status.textContent = "✅ Copied to clipboard!";
+        setTimeout(() => window.close(), 1500);
+      } catch (e) {
+        status.textContent = "⚠️ Auto-copy failed. Click the button below.";
+        document.getElementById("copyBtn").classList.remove("hidden");
+      }
+    }
+
+    async function manualCopy() {
+      const status = document.getElementById("status");
+      try {
+        const text = await getText();
+        await navigator.clipboard.writeText(text);
+        status.textContent = "✅ Copied!";
+        setTimeout(() => window.close(), 1500);
+      } catch (e) {
+        status.textContent = "❌ Copy failed.";
+      }
+    }
+
+    window.onload = autoCopy;
+  </script>
+</head>
+<body>
+  <div class="box">
+    <h1>NadeHelper Locs</h1>
+    <div class="desc">NL & GS</div>
+    <button id="copyBtn" class="hidden" onclick="manualCopy()">Copy</button>
+    <div class="status" id="status">Trying to copy to clipboard...</div>
+  </div>
+</body>
+</html>
