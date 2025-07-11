@@ -20,46 +20,53 @@
       background: rgba(20, 20, 20, 0.85);
       padding: 2rem 2.5rem;
       border-radius: 14px;
-      box-shadow: 0 0 20px rgba(0, 255, 120, 0.1);
+      box-shadow: 0 0 20px rgba(0, 255, 120, 0.05);
       max-width: 600px;
       width: 100%;
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 1.2rem;
+      margin-bottom: 0.4rem;
       color: #0f0;
+      font-size: 1.6rem;
+    }
+
+    .note {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+      text-align: center;
+      color: #aaa;
     }
 
     ul {
       list-style: none;
       padding: 0;
+      margin: 0;
     }
 
     li {
-      margin: 0.5rem 0;
+      border-bottom: 1px solid #333;
+      padding: 0.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    a {
-      display: block;
-      text-decoration: none;
-      background: #0f0;
-      color: #000;
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
-      font-weight: bold;
-      transition: background 0.2s ease;
+    .filename {
+      color: #eee;
+      font-size: 0.95rem;
     }
 
-    a:hover {
-      background: #0c0;
+    .download-link {
+      color: #0f0;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: color 0.2s;
     }
 
-    .note {
-      margin-top: 1.5rem;
-      font-size: 0.9rem;
-      text-align: center;
-      color: #888;
+    .download-link:hover {
+      color: #0c0;
     }
 
     .error {
@@ -93,13 +100,19 @@
         }
 
         luaFiles.forEach(file => {
-          const a = document.createElement("a");
-          a.href = `https://raw.githubusercontent.com/${githubUser}/${repo}/${branch}/${folder}/${file.name}`;
-          a.download = file.name;
-          a.textContent = file.name;
-
           const li = document.createElement("li");
-          li.appendChild(a);
+
+          const name = document.createElement("span");
+          name.className = "filename";
+          name.textContent = file.name;
+
+          const download = document.createElement("span");
+          download.className = "download-link";
+          download.textContent = "Download";
+          download.onclick = () => downloadLua(file.name);
+
+          li.appendChild(name);
+          li.appendChild(download);
           fileList.appendChild(li);
         });
 
@@ -109,14 +122,25 @@
       }
     }
 
+    async function downloadLua(filename) {
+      const url = `https://raw.githubusercontent.com/KayaHvH/Configs/main/lua/luapack/${filename}`;
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
     window.onload = loadLuaPack;
   </script>
 </head>
 <body>
   <div class="container">
-    <h1>LuaPack Downloads</h1>
+    <h1>LuaPack</h1>
+    <div class="note">Click any file below to download it.</div>
     <ul id="file-list"></ul>
-    <div class="note">Click to download any Lua script from /lua/luapack.</div>
     <div class="error" id="error"></div>
   </div>
 </body>
