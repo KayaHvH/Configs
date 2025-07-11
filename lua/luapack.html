@@ -61,34 +61,63 @@
       text-align: center;
       color: #888;
     }
+
+    .error {
+      color: #f55;
+      text-align: center;
+      margin-top: 1rem;
+    }
   </style>
   <script>
-    // Add your file names here
-    const files = [
-      "autobuy.lua",
-      "nadehelper.lua",
-      "customaa.lua"
-    ];
+    const githubUser = "KayaHvH";
+    const repo = "Configs";
+    const branch = "main";
+    const folder = "lua";
 
-    window.onload = () => {
-      const list = document.getElementById("file-list");
-      files.forEach(file => {
-        const li = document.createElement("li");
-        const link = document.createElement("a");
-        link.href = `luapack/${file}`;
-        link.download = file;
-        link.textContent = file;
-        li.appendChild(link);
-        list.appendChild(li);
-      });
-    };
+    async function loadLuaPack() {
+      const fileList = document.getElementById("file-list");
+      const error = document.getElementById("error");
+
+      try {
+        const apiURL = `https://api.github.com/repos/${githubUser}/${repo}/contents/${folder}`;
+        const res = await fetch(apiURL);
+        const data = await res.json();
+
+        if (!Array.isArray(data)) throw new Error("Unexpected API response");
+
+        const luaFiles = data.filter(f => f.name.endsWith(".lua"));
+
+        if (luaFiles.length === 0) {
+          fileList.innerHTML = "<li>No Lua files found.</li>";
+          return;
+        }
+
+        luaFiles.forEach(file => {
+          const a = document.createElement("a");
+          a.href = `https://raw.githubusercontent.com/${githubUser}/${repo}/${branch}/${folder}/${file.name}`;
+          a.download = file.name;
+          a.textContent = file.name;
+
+          const li = document.createElement("li");
+          li.appendChild(a);
+          fileList.appendChild(li);
+        });
+
+      } catch (e) {
+        console.error(e);
+        error.textContent = "❌ Failed to load Lua files from GitHub.";
+      }
+    }
+
+    window.onload = loadLuaPack;
   </script>
 </head>
 <body>
   <div class="container">
     <h1>LuaPack Downloads</h1>
     <ul id="file-list"></ul>
-    <div class="note">Click to download. Works with Gamesense & Neverlose.</div>
+    <div class="note">Click to download any Lua script.</div>
+    <div class="error" id="error"></div>
   </div>
 </body>
 </html>
