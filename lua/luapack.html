@@ -25,6 +25,23 @@
       width: 100%;
     }
 
+    .discord-link {
+      display: block;
+      background: #5865F2;
+      color: #fff;
+      text-align: center;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      text-decoration: none;
+      margin-bottom: 1rem;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+
+    .discord-link:hover {
+      background: #4752c4;
+    }
+
     h1 {
       text-align: center;
       margin-bottom: 0.4rem;
@@ -39,15 +56,15 @@
       color: #aaa;
     }
 
-    .searchbar {
+    .search-bar {
       width: 100%;
-      padding: 0.5rem 0.8rem;
+      padding: 0.5rem;
       margin-bottom: 1rem;
-      font-size: 1rem;
       border: none;
       border-radius: 8px;
-      background-color: #1c1c1c;
+      background: #111;
       color: #eee;
+      font-size: 0.9rem;
     }
 
     ul {
@@ -85,12 +102,6 @@
       text-align: center;
       margin-top: 1rem;
     }
-
-    .discord-embed {
-      margin-top: 2rem;
-      border-radius: 8px;
-      overflow: hidden;
-    }
   </style>
   <script>
     const githubUser = "KayaHvH";
@@ -111,6 +122,11 @@
         if (!Array.isArray(data)) throw new Error("Unexpected API response");
 
         luaFiles = data.filter(f => f.name.endsWith(".lua"));
+        if (luaFiles.length === 0) {
+          fileList.innerHTML = "<li>No Lua files found.</li>";
+          return;
+        }
+
         renderFiles(luaFiles);
 
       } catch (e) {
@@ -122,12 +138,6 @@
     function renderFiles(files) {
       const fileList = document.getElementById("file-list");
       fileList.innerHTML = "";
-
-      if (files.length === 0) {
-        fileList.innerHTML = "<li>No Lua files found.</li>";
-        return;
-      }
-
       files.forEach(file => {
         const li = document.createElement("li");
 
@@ -146,15 +156,15 @@
       });
     }
 
-    function filterFiles(term) {
-      const filtered = luaFiles.filter(file =>
-        file.name.toLowerCase().includes(term.toLowerCase())
+    function searchFiles(query) {
+      const filtered = luaFiles.filter(f =>
+        f.name.toLowerCase().includes(query.toLowerCase())
       );
       renderFiles(filtered);
     }
 
     async function downloadLua(filename) {
-      const url = `https://raw.githubusercontent.com/${githubUser}/${repo}/main/${folder}/${filename}`;
+      const url = `https://raw.githubusercontent.com/${githubUser}/${repo}/${branch}/${folder}/${filename}`;
       const res = await fetch(url);
       const blob = await res.blob();
       const link = document.createElement("a");
@@ -164,32 +174,23 @@
       URL.revokeObjectURL(link.href);
     }
 
-    window.onload = loadLuaPack;
+    window.onload = () => {
+      loadLuaPack();
+      const search = document.getElementById("search");
+      search.addEventListener("input", (e) => searchFiles(e.target.value));
+    };
   </script>
 </head>
 <body>
   <div class="container">
+    <a class="discord-link" href="https://discord.gg/Sf88yVvZgB" target="_blank">
+      🌐 Join our Discord
+    </a>
     <h1>LuaPack</h1>
     <div class="note">Click any file below to download it.</div>
-    <input
-      type="text"
-      class="searchbar"
-      placeholder="🔍 Search files..."
-      oninput="filterFiles(this.value)"
-    />
+    <input type="text" id="search" class="search-bar" placeholder="Search Lua files..." />
     <ul id="file-list"></ul>
     <div class="error" id="error"></div>
-
-    <div class="discord-embed">
-      <iframe
-        src="https://discord.com/widget?id=1232472064263493642&theme=dark"
-        width="100%"
-        height="300"
-        allowtransparency="true"
-        frameborder="0"
-        sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
-      ></iframe>
-    </div>
   </div>
 </body>
 </html>
